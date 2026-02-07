@@ -44,6 +44,33 @@ app.post("/notify", authMiddleware, async (req, res) => {
   }
 });
 
+app.post("/vercel-webhook", authMiddleware, async (req, res) => {
+  try {
+    const event = req.body;
+
+    const project = event.project?.name ?? "vercel-app";
+    const state = event.payload?.deployment?.state;
+
+    let status: "started" | "success" | "failed" = "started";
+
+    if (state === "READY") status = "success";
+    if (state === "ERROR") status = "failed";
+
+    const message = formatMessage({
+      project,
+      status,
+      environment: "vercel",
+    });
+
+    await sendTelegramMessage(message);
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Vercel webhook error:", err);
+    res.status(500).send("Webhook failed");
+  }
+});
+
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 app.listen(PORT, () => {
