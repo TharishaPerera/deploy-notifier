@@ -1,10 +1,8 @@
 import axios from "axios";
 
-export async function sendTelegramMessage(message) {
+export async function sendTelegramMessage(message: string): Promise<void> {
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
-
-    console.log(token, chatId);
 
     if (!token || !chatId) {
         throw new Error("Telegram credentials missing");
